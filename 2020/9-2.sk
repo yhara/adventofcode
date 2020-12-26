@@ -13,7 +13,6 @@ class Day9
   end
 
   def _check(start: Int)
-    numbers = @numbers
     puts("start: " + start.to_s)
 
     var sum = 0
@@ -29,15 +28,14 @@ class Day9
   end
 
   def _finish(st: Int, ed: Int)
-    numbers = @numbers
     var min = 999999999999999
     var max = 0
     st.upto(ed) do |i: Int|
-      if numbers[i] < min
-        min = numbers[i]
+      if @numbers[i] < min
+        min = @numbers[i]
       end
-      if numbers[i] > max
-        max = numbers[i]
+      if @numbers[i] > max
+        max = @numbers[i]
       end
     end
 
