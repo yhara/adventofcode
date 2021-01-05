@@ -1,0 +1,37 @@
+class Day13
+  def initialize(s: String)
+    var @start = 0
+    @buses = Array<Int>.new
+    _parse(s)
+  end
+
+  def solve
+    var min_time = 9999999
+    var bus_id = 0
+    @buses.each do |bus: Int|
+      time = (bus - @start % bus)
+      puts "bus: #{bus} time: #{time}"
+      if time < min_time
+        min_time = time
+        bus_id = bus
+      end
+    end
+    puts "bus_id: #{bus_id} min_time: #{min_time}"
+    p bus_id * min_time
+  end
+
+  def _parse(s: String)
+    lines = s.lines
+    @start = lines[0].to_i
+    lines[1].split(",").each do |x: String|
+      if x != "x"
+        @buses.push(x.to_i)
+      end
+    end
+  end
+end
+s="1008832
+23,x,x,x,x,x,x,x,x,x,x,x,x,41,x,x,x,x,x,x,x,x,x,449,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,13,19,x,x,x,x,x,x,x,x,x,29,x,991,x,x,x,x,x,37,x,x,x,x,x,x,x,x,x,x,17"
+ss="939
+7,13,x,x,59,x,31,19"
+Day13.new(s).solve

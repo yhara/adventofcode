@@ -1,0 +1,99 @@
+class Bus
+  def initialize(@id: Int, @idx: Int); end
+#  def ==(other: Bus)
+#    @id == other.id
+#  end
+#  def <(other: Bus)
+#    @id < other.id
+#  end
+  def inspect -> String
+    "#<Bus #{@id} #{@idx}>"
+  end
+end
+
+class Day13
+  def initialize(s: String)
+    @buses = Array<Bus>.new
+    _parse(s)
+  end
+
+  def solve -> Int
+    #p @buses
+    var a = 0
+    var b = @buses[0].id
+    1.upto(@buses.length-1) do |i: Int|
+      bus = @buses[i]
+      a = _china(bus.id-(bus.idx%bus.id), bus.id, a, b)
+      b *= bus.id
+      p "id: #{bus.id}, idx: #{bus.idx}, a: \{a}, b: \{b}"
+    end
+    p a
+    a
+  end
+
+  # ret == b1(mod m1) == b2(mod m2)
+  def _china(b1: Int, m1: Int, b2: Int, m2: Int) -> Int
+    if m1 == 0; panic "[_china: m1 is 0]"; end
+    if m2 == 0; panic "[_china: m2 is 0]"; end
+    x = [0]
+    y = [0]
+    # m1 x + m2 y = 1
+    _ext_gcd(m1, m2, x, y)
+
+    # This may overflow
+    #ret = (b2 * m1 * x[0] + b1 * m2 * y[0]) % (m1 * m2)
+    
+    ret = if m2 > b2 * x[0]
+            ((m1 * m2) + ((b1 * m2 * y[0]) % (m1 * m2))) % (m1*m2)
+          else
+            ((b2 * x[0]) % m2 + (b1 * y[0]) % m1) % (m1*m2)
+          end
+
+    p "ret = (#{b2} * #{m1} * #{x[0]} + #{b1} * #{m2} * #{y[0]}) % (#{m1} * #{m2})"
+    p "_china: #{ret} == #{b1}(mod #{m1}) == #{b2}(mod #{m2})"
+    ret
+  end
+
+  # ax + by = gcd(a, b)
+  def _ext_gcd(a: Int, b: Int, x: Array<Int>, y: Array<Int>) -> Int
+    if b == 0 
+      x[0] = 1
+      y[0] = 0
+      #p "_ext_gcd: \{a} \{b} \{x} \{y} -> a \{a}"
+      a
+    else
+      d = _ext_gcd(b, a%b, y, x)
+      y[0] -= a/b * x[0];
+      #p "_ext_gcd: \{a} \{b} \{x} \{y} -> d \{d}"
+      d
+    end
+  end
+
+#  def _gcd(a: Int, b: Int) -> Int
+#    if a == 0
+#      b
+#    else
+#      _gcd(b % a, a)
+#    end
+#  end
+
+  def _parse(s: String)
+    var idx = 0
+    s.split(",").each do |x: String|
+      if x != "x"
+        @buses.push(Bus.new(x.to_i, idx))
+      end
+      idx += 1
+    end
+  end
+end
+s="23,x,x,x,x,x,x,x,x,x,x,x,x,41,x,x,x,x,x,x,x,x,x,449,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,13,19,x,x,x,x,x,x,x,x,x,29,x,991,x,x,x,x,x,37,x,x,x,x,x,x,x,x,x,x,17"
+ss="7,13,x,x,59,x,31,19"
+#unless Day13.new("17,x,13,19").solve == 3417; panic "!"; end
+#unless Day13.new("67,7,59,61").solve == 754018;  panic "!"; end
+#unless Day13.new("67,x,7,59,61").solve == 779210;  panic "!"; end
+#unless Day13.new("67,7,x,59,61").solve == 1261476;  panic "!"; end
+#unless Day13.new("1789,37,47,1889").solve == 1202161486;  panic "!"; end
+#unless Day13.new(ss).solve == 1068781;  panic "!"; end
+
+Day13.new(s).solve

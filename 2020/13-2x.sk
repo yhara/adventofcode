@@ -1,0 +1,57 @@
+# https://zenn.dev/sugyan/articles/4d50e992db5b7e
+class Bus
+  def initialize(@id: Int, @idx: Int); end
+  def inspect -> String
+    "#<Bus #{@id} #{@idx}>"
+  end
+end
+
+class Day13
+  def initialize(s: String)
+    @buses = Array<Bus>.new
+    _parse(s)
+  end
+
+  def solve -> Int
+    #p @buses
+    var a = @buses[0].id
+    var b = 0
+    1.upto(@buses.length-1) do |i: Int|
+      bus = @buses[i]
+      var m = 0
+      while true
+        if (a * m + b + bus.idx) % bus.id == 0
+          break
+        end
+        m += 1
+      end
+      p "(b(#{b}) * m(#{m}) + a(#{a}) + idx(#{bus.idx})) % id(#{bus.id}) == 0"
+      b = a * m + b
+      a *= bus.id
+#      p "id: #{bus.id}, idx: #{bus.idx}, a: \{a}, b: \{b}"
+    end
+    ans = b
+    p ans
+    ans
+  end
+
+  def _parse(s: String)
+    var idx = 0
+    s.split(",").each do |x: String|
+      if x != "x"
+        @buses.push(Bus.new(x.to_i, idx))
+      end
+      idx += 1
+    end
+  end
+end
+s="23,x,x,x,x,x,x,x,x,x,x,x,x,41,x,x,x,x,x,x,x,x,x,449,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,13,19,x,x,x,x,x,x,x,x,x,29,x,991,x,x,x,x,x,37,x,x,x,x,x,x,x,x,x,x,17"
+ss="7,13,x,x,59,x,31,19"
+#unless Day13.new("17,x,13,19").solve == 3417; panic "!"; end
+#unless Day13.new("67,7,59,61").solve == 754018;  panic "!"; end
+#unless Day13.new("67,x,7,59,61").solve == 779210;  panic "!"; end
+#unless Day13.new("67,7,x,59,61").solve == 1261476;  panic "!"; end
+#unless Day13.new("1789,37,47,1889").solve == 1202161486;  panic "!"; end
+unless Day13.new(ss).solve == 1068781;  panic "!"; end
+
+Day13.new(s).solve
