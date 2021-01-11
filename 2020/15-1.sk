@@ -1,0 +1,40 @@
+class Day15
+  def initialize(s: String)
+    @nums = _parse(s)
+  end
+
+  def solve
+    a = Array<Int>.new
+    0.upto(2019) do |i: Int|
+      if i < @nums.length
+        a.push(@nums[i])
+      else
+        a.push(_rindex(a, a.last))
+      end
+    end
+    p a.last
+  end
+
+  def _rindex(a: Array<Int>, n: Int) -> Int
+    #puts "#{n} \{a}"
+    var ret = -1
+    0.upto(a.length - 2) do |i: Int|
+      if a[(a.length - 2) - i] == n  && ret == -1 # I need break
+        ret = i + 1
+      end
+    end
+    #p ret
+    ret >= 0 ? ret : 0
+  end
+
+  def _parse(s: String) -> Array<Int>
+    ret = Array<Int>.new
+    s.split(",").each do |x: String|
+      ret.push(x.to_i)
+    end
+    ret
+  end
+end
+ss="0,3,6"
+s="8,0,17,4,1,12"
+Day15.new(s).solve

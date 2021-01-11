@@ -1,0 +1,39 @@
+class Day15
+  def initialize(s: String)
+    @nums = _parse(s)
+  end
+
+  def solve
+    last_occur = Array<Int>.repeat(-1, 30000000)
+
+    var prev_n = -1
+    var n = 0
+    1.upto(30000000) do |t: Int|
+      p(t/100000) if t % 100000 == 1
+      n = if t <= @nums.length
+            @nums[t-1]
+          else
+            l = last_occur[n]
+            if l < 0
+              0
+            else
+              t - l
+            end
+          end
+      last_occur[prev_n] = t if prev_n >= 0
+      prev_n = n
+    end
+    p n
+  end
+
+  def _parse(s: String) -> Array<Int>
+    ret = Array<Int>.new
+    s.split(",").each do |x: String|
+      ret.push(x.to_i)
+    end
+    ret
+  end
+end
+ss="0,3,6"
+s="8,0,17,4,1,12"
+Day15.new(s).solve
