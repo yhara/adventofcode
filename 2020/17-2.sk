@@ -1,0 +1,153 @@
+ACTIVE = "#".nth_byte(0)
+INACTIVE = ".".nth_byte(0)
+N_STEPS = 6
+class Cube
+  def initialize(initial_state: Array<String>)
+    initial_size = initial_state.length
+    @max_size = initial_size + (N_STEPS * 2)
+    l = N_STEPS
+    r = l + initial_size - 1
+    center = l + initial_size / 2
+    @data = Array.build<Array<Array<Array<Int>>>>(@max_size){|w: Int|
+      Array.build<Array<Array<Int>>>(@max_size){|z: Int|
+        Array.build<Array<Int>>(@max_size){|y: Int|
+          Array.build<Int>(@max_size){|x: Int|
+            if w == center && z == center && l <= x <= r && l <= y <= r
+              initial_state[y - l].nth_byte(x - l)
+            else
+              INACTIVE
+            end
+          }
+        }
+      }
+    }
+  end
+
+  def set(x: Int, y: Int, z: Int, w: Int, state: Int)
+    @data[w][z][y][x] = state
+  end
+
+  def get(x: Int, y: Int, z: Int, w: Int) -> Int
+    if 0 <= w < @max_size && 0 <= x < @max_size && 0 <= y < @max_size && 0 <= z < @max_size
+      @data[w][z][y][x]
+    else
+      INACTIVE
+    end
+  end
+
+  def next_state(x: Int, y: Int, z: Int, w: Int) -> Int
+    current = get(x, y, z, w)
+    var ct = 0
+    [-1, 0, 1].each do |dw: Int|
+      [-1, 0, 1].each do |dz: Int|
+        [-1, 0, 1].each do |dy: Int|
+          [-1, 0, 1].each do |dx: Int|
+            if get(x+dx, y+dy, z+dz, w+dw) == ACTIVE
+              ct += 1
+            end
+          end
+        end
+      end
+    end
+    active = if current == ACTIVE
+               ct == 3 || ct == 4
+             else
+               ct == 3
+             end
+    ret = active ? ACTIVE : INACTIVE
+    ret
+  end
+
+  def n_active -> Int
+    @data.flat_map<Int>{|cube: Array<Array<Array<Int>>>|
+      cube.flat_map<Int>{|plane: Array<Array<Int>>|
+        plane.flat_map<Int>{|row: Array<Int>| row}
+      }
+    }.select{|i: Int|
+      i == ACTIVE
+    }.length
+  end
+
+#  def dump
+#    puts ""
+#    0.upto(@max_size-1) do |z: Int|
+#      puts "z=#{z}"
+#      0.upto(@max_size-1) do |y: Int|
+#        s = MutableString.new
+#        0.upto(@max_size-1) do |x: Int|
+#          s.append_byte(get(x, y, z))
+#        end
+#        puts s.to_s
+#      end
+#    end
+#  end
+end
+
+class Day17
+  def initialize(s: String)
+    initial_state = s.split("\n")
+    @initial_size = initial_state.length
+    @max_size = @initial_size + (N_STEPS * 2)
+    @cubes = [Cube.new(initial_state), Cube.new(initial_state)]
+    var @current_cube = 0
+  end
+
+  def solve
+    N_STEPS.times do |i: Int|
+      puts "step #{i+1}"
+      _simulate(i)
+    end
+    p _current_cube().n_active
+  end
+
+  def _simulate(i: Int)
+    src = _current_cube()
+    dst = _next_cube()
+    0.upto(@max_size-1) do |w: Int|
+      puts "w: #{w}"
+      0.upto(@max_size-1) do |z: Int|
+        0.upto(@max_size-1) do |y: Int|
+          0.upto(@max_size-1) do |x: Int|
+            dst.set(x, y, z, w, src.next_state(x, y, z, w))
+          end
+        end
+      end
+    end
+#    l = N_STEPS - i
+#    r = l + (@initial_size + i * 2) - 1
+#
+#    l.upto(r) do |z: Int|
+#      l.upto(r) do |y: Int|
+#        l.upto(r) do |x: Int|
+#          dst.set(x, y, z, src.next_state(x, y, z))
+#        end
+#      end
+#    end
+
+    _swap_cube()
+  end
+
+  def _current_cube -> Cube
+    @cubes[@current_cube]
+  end
+
+  def _next_cube -> Cube
+    @cubes[1 - @current_cube]
+  end
+
+  def _swap_cube
+    @current_cube = 1 - @current_cube
+  end
+end
+ss=".#.
+..#
+###"
+s="####...#
+......##
+####..##
+##......
+..##.##.
+#.##...#
+....##.#
+.##.#.#."
+Day17.new(s).solve
